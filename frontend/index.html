@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Health Co-Pilot</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: linear-gradient(135deg, #f9fafb, #eef2ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      width: 720px;
+      background: white;
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      color: #555;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      padding: 14px;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #6366f1;
+    }
+
+    button {
+      margin-top: 18px;
+      padding: 12px 22px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #aaa;
+    }
+
+    .thinking {
+      margin-top: 22px;
+      font-style: italic;
+      color: #666;
+      display: none;
+    }
+
+    .response {
+      margin-top: 26px;
+      background: #f8fafc;
+      padding: 22px;
+      border-radius: 14px;
+      line-height: 1.7;
+      display: none;
+      white-space: pre-wrap;
+    }
+
+    .footer {
+      margin-top: 28px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>AI-Native Health Co-Pilot</h1>
+  <div class="subtitle">
+    Paste a food’s ingredient list.  
+    The AI will reason for you — no scores, no filters.
+  </div>
+
+  <textarea id="ingredients">
+Sugar, Palm Oil, E621, Artificial Flavors
+  </textarea>
+
+  <br>
+  <button id="btn" onclick="analyze()">Let the AI think</button>
+
+  <div id="thinking" class="thinking">
+    Thinking through what matters…
+  </div>
+
+  <div id="response" class="response"></div>
+
+  <div class="footer">
+    This AI explains trade-offs and uncertainty — it does not give medical advice.
+  </div>
+</div>
+
+<script>
+async function analyze() {
+  const btn = document.getElementById("btn");
+  const thinking = document.getElementById("thinking");
+  const responseBox = document.getElementById("response");
+  const ingredients = document.getElementById("ingredients").value;
+
+  btn.disabled = true;
+  thinking.style.display = "block";
+  responseBox.style.display = "none";
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ingredients })
+    });
+
+    const data = await res.json();
+    responseBox.textContent = data.analysis;
+    responseBox.style.display = "block";
+
+  } catch (err) {
+    responseBox.textContent = "Something went wrong.";
+    responseBox.style.display = "block";
+  }
+
+  thinking.style.display = "none";
+  btn.disabled = false;
+}
+</script>
+
+</body>
+</html>
